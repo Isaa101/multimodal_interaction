@@ -1,0 +1,10 @@
+
+- sentence_id: "introduction"
+  text:
+     - Hello, nice to meet you, let's play a game
+  audio:
+     - introduction
+  screen:
+     - image;introduction.png
+  animation:
+

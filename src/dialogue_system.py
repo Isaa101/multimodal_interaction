@@ -6,6 +6,19 @@ import yaml
 import time
 import pygame
 
+#pygame.mixer.Sound('file.mp3')
+"""
+sentence_id: "introduction"
+text: 
+    -Hello! Welcome to the multimodal interaction lab.
+audio:
+    -congratulate
+screen:
+    -image;green.png&text;congratulations*center
+animation:
+    -happy
+"""
+#type;content&type;content*position
 
 class FSMDialogueSystem:
     def __init__(self):

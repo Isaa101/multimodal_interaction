@@ -8,3 +8,12 @@
      - image;introduction.png
   animation:
 
+- sentence_id: "want_explanation"
+  text:
+     - Do you want me to explain the rules of the game?
+  audio:
+     - want_explanation
+  screen:
+     - image;want_explanation.png
+  animation:
+

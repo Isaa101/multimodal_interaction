@@ -8,3 +8,17 @@
      - image;introduction.png
   animation:
 
+patata:
+     - wave_hand        
+       - smile
+         - nod_head  
+- sentence_id: "game_start"
+  text:
+     - Are you ready to start the game?
+  audio:
+     - game_start
+  screen:
+     - image;game_start.png
+  animation:
+     - clap_hands
+       - excited_expression

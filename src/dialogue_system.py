@@ -174,7 +174,7 @@ class FSMDialogueSystem:
         elif self._current_state == 'score':
             self._current_state = 'good_bye'
         elif self._current_state == 'good_bye':
-            #what to do here?
+            return
         
     def execute_state(self, screen):
         if self._current_state == 'introduction':

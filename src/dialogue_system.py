@@ -65,6 +65,57 @@ class FSMDialogueSystem:
         self.load_robot_script()
         self._current_state = 'introduction'
         self._questions_asked = 0
+        self._correct_answers = 0
+        self._prize_levels = [100, 200, 500, 1000, 5000]  # prize for 1..5 correct answers
+
+
+#---------------------------------------
+# HELPERS FOR POSITION OF DISPLAYED CONTENT
+
+
+    def _answer_positions(self):
+        """Centros donde dibujas A, B, C y D sobre tablet.png"""
+        return {
+            'A': (self._screen_coord[0] + 275, self._screen_coord[1] + 145),
+            'B': (self._screen_coord[0] + 725, self._screen_coord[1] + 145),
+            'C': (self._screen_coord[0] + 275, self._screen_coord[1] + 215),
+            'D': (self._screen_coord[0] + 725, self._screen_coord[1] + 215),
+        }
+
+    def _answer_rects(self):
+        """Rectángulos clicables que corresponden a las píldoras verdes."""
+        return {
+            'A': pygame.Rect(self._screen_coord[0] + 55,  self._screen_coord[1] + 115, 420, 60),
+            'B': pygame.Rect(self._screen_coord[0] + 525, self._screen_coord[1] + 115, 420, 60),
+            'C': pygame.Rect(self._screen_coord[0] + 55,  self._screen_coord[1] + 185, 420, 60),
+            'D': pygame.Rect(self._screen_coord[0] + 525, self._screen_coord[1] + 185, 420, 60),
+        }
+
+#---------------------------------------
+
+#---------------------------------------
+# HELPER FOR FINAL SCORE AND PRIZE COMPUTATION
+
+    def _compute_final_prize_and_message(self):
+        """
+        Returns (prize_euros, message_str).
+        prize_euros: 0 if no correct answers, else one of [10,20,50,100,500]
+        message_str: congratulatory if all correct, encouragement otherwise
+        """
+        n = self._correct_answers
+        if n <= 0:
+            prize = 0
+        else:
+            # Cap at the length of the prize ladder
+            prize = self._prize_levels[min(n, len(self._prize_levels)) - 1]
+
+        if n == len(self._questions):
+            message = "Congratulations! You answered all questions correctly!"
+        else:
+            message = f"Good try! You answered {n} out of {len(self._questions)} correctly."
+
+        return prize, message
+#---------------------------------------
 
 ##################### METHODS FOR MANAGING THE APPLICATION'S SCRIPT #####################
 # These methods load the script.yaml file in the script folder (the os.getcwd() gets the current directory where the script is running)
@@ -107,6 +158,7 @@ class FSMDialogueSystem:
             anim_thread.daemon = True
             anim_thread.start()
             running_processes.append(('animation', anim_thread))
+            
     
         # 2. DISPLAY SCREEN CONTENT (if provided)
         if screen_content:
@@ -116,10 +168,12 @@ class FSMDialogueSystem:
         if speech:
             self.robot_speech(speech)
             # robot_speech should block until audio finishes playing
+            if animation:
+                anim_thread.join()
         
         # 4. If no speech but animation is running, wait for animation to complete
-        if not speech and animation:
-            anim_thread.join()
+        #if not speech and animation:
+        #    anim_thread.join()
 
     # Method for playing the robot's voice
     def robot_speech(self, speech):
@@ -149,6 +203,17 @@ class FSMDialogueSystem:
         can use the pygame.font.Font object to define a new font to be used for writing
         texts (you can have multiple if you need different text sizes, for example), and then
         use the Font.render() method to write text onto the screen.'''
+        
+        pygame.font.init()
+
+        # Define las fuentes una vez (no uses 'font' genérico para evitar sombras)
+        font_question = pygame.font.Font(None, 36)  # para pregunta o prompt
+        font_answer   = pygame.font.Font(None, 36)  # para respuestas/YES/NO
+
+        # Limpia el área inferior (1000x272) antes de dibujar
+        clear_rect = pygame.Rect(self._screen_coord[0], self._screen_coord[1], 1000, 272)
+        screen.fill((0, 0, 0), clear_rect)  # Fondo negro, puedes cambiar el color
+
 
         elements = screen_content.split('&')
         for element in elements:
@@ -168,26 +233,88 @@ class FSMDialogueSystem:
                     text_rect.center = (self._screen_coord[0] + 500, self._screen_coord[1] + 136)
                 screen.blit(text_surface, text_rect)
         
-        if self._current_state == 'ask_question':
+        
+        if self._current_state == 'explanation_needed':
+            # Texto de la pregunta en el recuadro superior
+            prompt_text = "Do you need to hear the instructions?"
+            prompt_surface = font_question.render(prompt_text, True, (255, 255, 255))
+            prompt_rect = prompt_surface.get_rect(center=(self._screen_coord[0] + 500, self._screen_coord[1] + 65))
+            screen.blit(prompt_surface, prompt_rect)
+
+            # YES y NO en posiciones de A y B
+            positions = self._answer_positions()
+            yes_surface = font_answer.render("YES", True, (255, 255, 255))
+            yes_rect = yes_surface.get_rect(center=positions['A'])
+            screen.blit(yes_surface, yes_rect)
+
+            no_surface = font_answer.render("NO", True, (255, 255, 255))
+            no_rect = no_surface.get_rect(center=positions['B'])
+            screen.blit(no_surface, no_rect)
+
+        elif self._current_state == 'ask_question':
             question_data = self._questions[self._questions_asked - 1]
             question_text = question_data['question']
             answers = ['A', 'B', 'C', 'D']
             answer_texts = [f"{ans}: {question_data[ans]}" for ans in answers]
             
             # Render question
-            font = pygame.font.Font(None, 36)
-            question_surface = font.render(question_text, True, (255, 255, 255))
-            question_rect = question_surface.get_rect(center=(self._screen_coord[0] + 500, self._screen_coord[1] + 50))
+            question_surface = font_question.render(question_text, True, (255, 255, 255))
+            question_rect = question_surface.get_rect(center=(self._screen_coord[0] + 500, self._screen_coord[1] + 65))
             screen.blit(question_surface, question_rect)
             
             # Render answers
+            positions = self._answer_positions()
+
             for i, answer_text in enumerate(answer_texts):
-                answer_surface = font.render(answer_text, True, (255, 255, 255))
-                answer_rect = answer_surface.get_rect(center=(self._screen_coord[0] + 125 + i*250, self._screen_coord[1] + 200))
+                ans_key = answers[i]
+                answer_surface = font_answer.render(answer_text, True, (255, 255, 255))
+                answer_rect = answer_surface.get_rect(center=positions[ans_key])
                 screen.blit(answer_surface, answer_rect)
 
-
         
+        elif self._current_state == 'score':
+            prize, msg = self._compute_final_prize_and_message()
+
+            # Draw the background image (tablet) if not already drawn by 'screen_content'
+            # (Your loop above already blits the 'image;tablet.png' from script.yaml.
+            # If you want score to always have the tablet, ensure the script provides it,
+            # or force it here by loading tablet.png again.)
+
+            # Fonts
+            pygame.font.init()
+            font_title  = pygame.font.Font(None, 30)
+            font_prize  = pygame.font.Font(None, 100)
+            font_footer = pygame.font.Font(None, 32)
+
+            area_x, area_y = self._screen_coord
+
+            # Title/message in the top pill
+            title_surface = font_title.render(msg, True, (0, 0, 0))
+            title_rect    = title_surface.get_rect(center=(area_x + 500, area_y + 75))
+            screen.blit(title_surface, title_rect)
+
+            # Prize in the first answer row center (use B center for emphasis)
+            prize_text = f"{prize}€" if prize > 0 else "No prize"
+            prize_surface = font_prize.render(prize_text, True, (255, 140, 0))
+            prize_rect    = prize_surface.get_rect(center=(area_x + 500, area_y + 145))  # centered between A/B
+            screen.blit(prize_surface, prize_rect)
+
+
+
+        '''
+        # Debug to show areas to click
+        
+        if self._current_state in ("explanation_needed", "ask_question"):
+            rects = self._answer_rects()
+            color = (255, 0, 0)
+            width = 2
+            if self._current_state == "explanation_needed":
+                pygame.draw.rect(screen, color, rects['A'], width)  # YES
+                pygame.draw.rect(screen, color, rects['B'], width)  # NO
+            else:
+                for r in rects.values():
+                    pygame.draw.rect(screen, color, r, width)
+        '''        
         
         pygame.display.flip()
 
@@ -206,7 +333,7 @@ class FSMDialogueSystem:
             frame_files = sorted(os.listdir(animation_path))
             for frame_file in frame_files:
                 img = pygame.image.load(os.path.join(animation_path, frame_file))
-                screen.blit(img, (0,0))
+                screen.blit(img, (296,0))
                 pygame.display.flip()
                 time.sleep(0.05)  # Assuming 20 FPS
         
@@ -236,25 +363,55 @@ class FSMDialogueSystem:
         '''
         while True:
             for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = pygame.mouse.get_pos()
-                    # Assuming screen width is 1000 and height is 272
-                    if 0 <= x < 250:
-                        return 'A'
-                    elif 250 <= x < 500:
-                        return 'B'
-                    elif 500 <= x < 750:
-                        return 'C'
-                    elif 750 <= x <= 1000:
-                        return 'D'
-                elif event.type == pygame.QUIT:
+
+                if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                
-                #input-based
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = pygame.mouse.get_pos()
+
+                    if self._current_state == "explanation_needed":
+                        rects = self._answer_rects()
+                        if rects['A'].collidepoint(x, y):
+                            print("User answer: YES\n")
+                            return 'YES'
+                        elif rects['B'].collidepoint(x, y):
+                            print("User answer: NO\n")
+                            return 'NO'
+                        # (Ignora clicks en C/D en este estado)
+
+                    elif self._current_state == "ask_question":
+                        rects = self._answer_rects()
+                        for opt in ['A', 'B', 'C', 'D']:
+                            if rects[opt].collidepoint(x, y):
+                                print(f"User answer: {opt}\n")
+                                return opt
+
+
+            '''   # Bloquea la pantalla
+            #input-based
             user_input = input("Your answer (Yes/No or A/B/C/D): ").strip().lower()
             if user_input in ['yes', 'no', 'a', 'b', 'c', 'd']:
-                return user_input.upper()
+                return user_input.upper()''' 
+            
+            
+            keys = pygame.key.get_pressed()
+            
+            if self._current_state == "explanation_needed":
+                if keys[pygame.K_y]:
+                    print("User answer: YES\n"); return 'YES'
+                elif keys[pygame.K_n]:
+                    print("User answer: NO\n");  return 'NO'
+            elif self._current_state == "ask_question":
+                if keys[pygame.K_a]: print("User answer: A\n"); return 'A'
+                if keys[pygame.K_b]: print("User answer: B\n"); return 'B'
+                if keys[pygame.K_c]: print("User answer: C\n"); return 'C'
+                if keys[pygame.K_d]: print("User answer: D\n"); return 'D'
+
+
+            pygame.time.wait(100) # Evita consumir CPU
+
     
 
 ##################### METHODS FOR CONTROLLING THE INTERACTION FLOW #####################
@@ -277,6 +434,7 @@ class FSMDialogueSystem:
             user_answer = self.obtain_user_answer()
             # Logic to check if the answer is correct 
             if user_answer == self._questions[self._questions_asked - 1]['correct_answer']:
+                self._correct_answers += 1
                 self._current_state = 'congratulate'
             else:
                 self._current_state = 'wrong'
@@ -298,6 +456,15 @@ class FSMDialogueSystem:
     def execute_state(self, screen):
         dialogue_step = self.obtain_dialogue_step(self._current_state)
         print(dialogue_step['text'][0])  # Print the text to console
+        print()
+        #Print question and possible answers in console
+        if self._current_state == "ask_question":
+            question = self._questions[self._questions_asked - 1]
+            print("Question:", question['question'])
+            for option in ['A', 'B', 'C', 'D']:
+                print(f"{option}: {question[option]}")
+            print ("\nPress Y (Yes), N (No), A, B, C, or D ->      ")
+
         self.expressiveness_system(screen, dialogue_step['audio'][0], 
                                     dialogue_step['screen'][0], 
                                     dialogue_step['animation'][0] if 'animation' in dialogue_step else None)  

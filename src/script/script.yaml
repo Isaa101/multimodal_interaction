@@ -13,7 +13,7 @@
   audio:
      - explanation_needed
   screen:
-     - image;introduction.png
+     - image;tablet.png
 
 - sentence_id: "explanation"
   text:
@@ -78,8 +78,8 @@
 
 - sentence_id: "goodbye"
   text:
-     - Thanks for playingwith me! Goodbye!
+     - Thanks for playing with me! Goodbye!
   audio:
      - goodbye
   screen:
-     - image;prize_bg.png
+     - image;introduction.png

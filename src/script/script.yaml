@@ -14,23 +14,80 @@
   audio:
      - explanation_needed
   screen:
-     - image;explanation_needed.png
+     - image;introduction.png
   animation:
 
-- sentence_id: "explannation"
+- sentence_id: "explanation"
   text:
      - Sure! The rules are simple. I will ask you some questions and you have to answer them as best as you can.
   audio:
      - explanation
   screen:
-     - image;explanation.png
+     - image;example.png
   animation:
 
-- sentence_id: "explanation_needed"
+
+- sentence_id: "start_question"
   text:
-     - Do you want me to explain the rules of the game?
+     - Let's start with the first question!
   audio:
-     - explanation_needed
+     - start_question
   screen:
-     - image;explanation_needed.png
+     - image;introduction.png
+  animation:
+
+- sentence_id: "ask_question"
+  text:
+     - Here is your question
+  audio:
+     - ask_question_sound
+  screen:
+     - image;tablet.png
+  animation:
+
+- sentence_id: "next_question"
+  text:
+     - Great job! Are you ready for the next question?
+  audio:
+     - next_question
+  screen:
+     - image;tablet.png
+  animation:
+
+- sentence_id: "congratulate"
+  text:
+     - Congratulations! Your answer is completely correct.
+  audio:
+     - congratulate
+  screen:
+     - image;green.png&text;CONGRATULATIONS*center
+  animation:
+     - happy
+
+- sentence_id: "wrong"
+  text:
+     - I'm sorry, that's not quite right.
+  audio:
+     - wrong
+  screen:
+     - image;red.png&text;INCORRECT*center
+  animation:
+     - sad
+
+- sentence_id: "score"
+  text:
+     - The game is over! Your final score is...
+  audio:
+     - score
+  screen:
+     - image;prize_bg.png
+  animation:
+
+- sentence_id: "goodbye"
+  text:
+     - Thanks for playing! Goodbye!
+  audio:
+     - goodbye
+  screen:
+     - image;prize_bg.png
   animation:

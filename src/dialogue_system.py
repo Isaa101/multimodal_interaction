@@ -131,7 +131,7 @@ class FSMDialogueSystem:
             return False if the sound is not being played, True if it is). We can use this to block
             the execution of our program until the entire audio clip has been played.'''
         pygame.mixer.init()
-        sound = pygame.mixer.Sound('audio/' + speech + '.mp3')
+        sound = pygame.mixer.Sound('audios/' + speech + '.mp3')
         channel = sound.play()
         while channel.get_busy():
             time.sleep(0.1)
@@ -149,12 +149,13 @@ class FSMDialogueSystem:
         can use the pygame.font.Font object to define a new font to be used for writing
         texts (you can have multiple if you need different text sizes, for example), and then
         use the Font.render() method to write text onto the screen.'''
+
         elements = screen_content.split('&')
         for element in elements:
             type_content = element.split(';')
             content = type_content[1]
             if type_content[0] == 'image':
-                img = pygame.image.load('screen/' + content)
+                img = pygame.image.load('images/' + content)
                 screen.blit(img, self._screen_coord)
             elif type_content[0] == 'text':
                 text_position = 'center'
@@ -251,8 +252,8 @@ class FSMDialogueSystem:
                     sys.exit()
                 
                 #input-based
-            user_input = input("Your answer (A/B/C/D): ").strip().lower()
-            if user_input in ['a', 'b', 'c', 'd']:
+            user_input = input("Your answer (Yes/No or A/B/C/D): ").strip().lower()
+            if user_input in ['yes', 'no', 'a', 'b', 'c', 'd']:
                 return user_input.upper()
     
 
@@ -263,7 +264,7 @@ class FSMDialogueSystem:
             self._current_state = 'explanation_needed'
         elif self._current_state == 'explanation_needed':
             user_answer = self.obtain_user_answer()
-            if user_answer == 'yes':
+            if user_answer == 'YES':
                 self._current_state = 'explanation'
             else:
                 self._current_state = 'start_questions'
@@ -290,15 +291,16 @@ class FSMDialogueSystem:
         elif self._current_state == 'next_question':
             self._current_state = 'ask_question'
         elif self._current_state == 'score':
-            self._current_state = 'good_bye'
-        elif self._current_state == 'good_bye':
+            self._current_state = 'goodbye'
+        elif self._current_state == 'goodbye':
             self._current_state = 'end'
         
     def execute_state(self, screen):
         dialogue_step = self.obtain_dialogue_step(self._current_state)
-        self.expressiveness_system(dialogue_step['speech'], 
-                                    dialogue_step['screen'], 
-                                    dialogue_step['animation'])  
+        print(dialogue_step['text'][0])  # Print the text to console
+        self.expressiveness_system(screen, dialogue_step['audio'][0], 
+                                    dialogue_step['screen'][0], 
+                                    dialogue_step['animation'][0] if 'animation' in dialogue_step else None)  
         return
 
 

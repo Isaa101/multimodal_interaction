@@ -6,7 +6,6 @@
      - introduction
   screen:
      - image;introduction.png
-  animation:
 
 - sentence_id: "explanation_needed"
   text:
@@ -15,7 +14,6 @@
      - explanation_needed
   screen:
      - image;introduction.png
-  animation:
 
 - sentence_id: "explanation"
   text:
@@ -24,17 +22,15 @@
      - explanation
   screen:
      - image;example.png
-  animation:
 
 
-- sentence_id: "start_question"
+- sentence_id: "start_questions"
   text:
      - Let's start with the first question!
   audio:
      - start_question
   screen:
      - image;introduction.png
-  animation:
 
 - sentence_id: "ask_question"
   text:
@@ -43,7 +39,6 @@
      - ask_question
   screen:
      - image;tablet.png
-  animation:
 
 - sentence_id: "next_question"
   text:
@@ -52,7 +47,6 @@
      - next_question
   screen:
      - image;tablet.png
-  animation:
 
 - sentence_id: "congratulate"
   text:
@@ -81,7 +75,6 @@
      - score
   screen:
      - image;prize_bg.png
-  animation:
 
 - sentence_id: "goodbye"
   text:
@@ -90,4 +83,3 @@
      - goodbye
   screen:
      - image;prize_bg.png
-  animation:

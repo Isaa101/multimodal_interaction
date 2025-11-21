@@ -20,6 +20,45 @@ animation:
 """
 #type;content&type;content*position
 
+
+questions = [
+    {
+        'question': 'What is 2 + 2?',
+        'A': '4',
+        'B': '22',
+        'C': '5',
+        'D': '3',
+        'correct_answer': 'A'},
+    {
+        'question': 'What is the capital of France?',
+        'A': 'Berlin',
+        'B': 'Madrid',
+        'C': 'Paris',
+        'D': 'Rome',
+        'correct_answer': 'C'},
+    {
+        'question': 'What is the largest planet in our solar system?',
+        'A': 'Earth',
+        'B': 'Jupiter',
+        'C': 'Mars',
+        'D': 'Saturn',
+        'correct_answer': 'B'},
+    {
+        'question': 'Who wrote "Romeo and Juliet"?',
+        'A': 'Charles Dickens',
+        'B': 'Mark Twain',
+        'C': 'William Shakespeare',
+        'D': 'Jane Austen',
+        'correct_answer': 'C'},
+    {
+        'question': 'What is the chemical symbol for water?',
+        'A': 'O2',
+        'B': 'H2O',
+        'C': 'CO2',
+        'D': 'NaCl',
+        'correct_answer': 'B'}
+]
+
 class FSMDialogueSystem:
     def __init__(self):
         self._robot_script = None
@@ -109,11 +148,33 @@ class FSMDialogueSystem:
             if user_answer == 'yes':
                 self._current_state = 'explanation'
             else:
-                self._current_state = 'first_question'
+                self._current_state = 'start_questions'
         elif self._current_state == 'explanation':
-            self._current_state = 'first_question'
-        elif 
-
+            self._current_state = 'start_questions'
+        elif self._current_state == 'start_questions':
+            self._current_state = 'ask_question'
+            self._questions_asked = 1
+        elif self._current_state == 'ask_question':
+            user_answer = self.obtain_user_answer()
+            # Logic to check if the answer is correct can be added here
+            if user_answer == questions[self._questions_asked - 1]['correct_answer']:
+                self._current_state = 'congratulate'
+            else:
+                self._current_state = 'wrong'
+        elif self._current_state == 'congratulate':
+            if self._questions_asked < len(self._questions):
+                self._current_state = 'next_question'
+                self._questions_asked += 1
+            else:
+                self._current_state = 'score'
+        elif self._current_state == 'wrong':
+            self._current_state = 'score'
+        elif self._current_state == 'next_question':
+            self._current_state = 'ask_question'
+        elif self._current_state == 'score':
+            self._current_state = 'good_bye'
+        elif self._current_state == 'good_bye':
+            #what to do here?
         
     def execute_state(self, screen):
         if self._current_state == 'introduction':

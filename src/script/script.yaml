@@ -8,12 +8,29 @@
      - image;introduction.png
   animation:
 
-- sentence_id: "want_explanation"
+- sentence_id: "explanation_needed"
   text:
      - Do you want me to explain the rules of the game?
   audio:
-     - want_explanation
+     - explanation_needed
   screen:
-     - image;want_explanation.png
+     - image;explanation_needed.png
   animation:
 
+- sentence_id: "explannation"
+  text:
+     - Sure! The rules are simple. I will ask you some questions and you have to answer them as best as you can.
+  audio:
+     - explanation
+  screen:
+     - image;explanation.png
+  animation:
+
+- sentence_id: "explanation_needed"
+  text:
+     - Do you want me to explain the rules of the game?
+  audio:
+     - explanation_needed
+  screen:
+     - image;explanation_needed.png
+  animation:

@@ -40,7 +40,7 @@
   text:
      - Here is your question
   audio:
-     - ask_question_sound
+     - ask_question
   screen:
      - image;tablet.png
   animation:
@@ -85,7 +85,7 @@
 
 - sentence_id: "goodbye"
   text:
-     - Thanks for playing! Goodbye!
+     - Thanks for playingwith me! Goodbye!
   audio:
      - goodbye
   screen:

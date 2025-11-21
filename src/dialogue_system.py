@@ -65,6 +65,8 @@ class FSMDialogueSystem:
         self._questions = []
         self._screen_coord = (0, 728)
         self.load_robot_script()
+        self._questions_asked = 0
+        self._current_state = 'introduction'
 
 ##################### METHODS FOR MANAGING THE APPLICATION'S SCRIPT #####################
 # These methods load the script.yaml file in the script folder (the os.getcwd() gets the current directory where the script is running)
@@ -136,7 +138,15 @@ class FSMDialogueSystem:
 ##################### METHODS FOR MANAGING THE ROBOT'S PERCEPTION #####################
     # Method for capturing user inputs. It should receive the type of input expected, and act accordingly
     def obtain_user_answer(self):
-        pass
+        if self._current_state == 'explanation_needed':
+            # For simplicity, we simulate user input here
+            # In a real scenario, this could be voice recognition or button press
+            user_input = input("Do you need an explanation? (yes/no): ")
+            return user_input.lower()
+        elif self._current_state == 'ask_question':
+            # ifentify the response form where the user clicks on the screen
+            #falta acabar
+            pass
 
 ##################### METHODS FOR CONTROLLING THE INTERACTION FLOW #####################
 
@@ -156,7 +166,7 @@ class FSMDialogueSystem:
             self._questions_asked = 1
         elif self._current_state == 'ask_question':
             user_answer = self.obtain_user_answer()
-            # Logic to check if the answer is correct can be added here
+            # Logic to check if the answer is correct 
             if user_answer == questions[self._questions_asked - 1]['correct_answer']:
                 self._current_state = 'congratulate'
             else:
@@ -174,12 +184,61 @@ class FSMDialogueSystem:
         elif self._current_state == 'score':
             self._current_state = 'good_bye'
         elif self._current_state == 'good_bye':
-            return
+            self._current_state = 'end'
         
     def execute_state(self, screen):
         if self._current_state == 'introduction':
             dialogue_step = self.obtain_dialogue_step('introduction')
-            self.expressiveness_system()
+            self.expressiveness_system(dialogue_step['speech'], 
+                                       dialogue_step['screen'], 
+                                       dialogue_step['animation'])
+        elif self._current_state == 'explanation_needed':
+            dialogue_step = self.obtain_dialogue_step('explanation_needed')
+            self.expressiveness_system(dialogue_step['speech'], 
+                                       dialogue_step['screen'], 
+                                       dialogue_step['animation'])
+        elif self._current_state == 'explanation':
+            dialogue_step = self.obtain_dialogue_step('explanation')
+            self.expressiveness_system(dialogue_step['speech'], 
+                                       dialogue_step['screen'], 
+                                       dialogue_step['animation'])
+        elif self._current_state == 'start_questions':
+            dialogue_step = self.obtain_dialogue_step('start_questions')
+            self.expressiveness_system(dialogue_step['speech'], 
+                                       dialogue_step['screen'], 
+                                       dialogue_step['animation'])
+        elif self._current_state == 'ask_question':
+            current_question = questions[self._questions_asked - 1]
+            dialogue_step = self.obtain_dialogue_step('question')
+            # Here we would format the question with the current_question data
+            self.expressiveness_system(dialogue_step['speech'], 
+                                       dialogue_step['screen'], 
+                                       dialogue_step['animation'])
+        elif self._current_state == 'congratulate':
+            dialogue_step = self.obtain_dialogue_step('congratulate')
+            self.expressiveness_system(dialogue_step['speech'], 
+                                       dialogue_step['screen'], 
+                                       dialogue_step['animation'])
+        elif self._current_state == 'wrong':
+            dialogue_step = self.obtain_dialogue_step('wrong')
+            self.expressiveness_system(dialogue_step['speech'], 
+                                       dialogue_step['screen'], 
+                                       dialogue_step['animation'])
+        elif self._current_state == 'next_question':
+            dialogue_step = self.obtain_dialogue_step('next_question')
+            self.expressiveness_system(dialogue_step['speech'], 
+                                       dialogue_step['screen'], 
+                                       dialogue_step['animation'])
+        elif self._current_state == 'score':
+            dialogue_step = self.obtain_dialogue_step('score')
+            self.expressiveness_system(dialogue_step['speech'], 
+                                       dialogue_step['screen'], 
+                                       dialogue_step['animation'])
+        elif self._current_state == 'good_bye':
+            dialogue_step = self.obtain_dialogue_step('goodbye')
+            self.expressiveness_system(dialogue_step['speech'], 
+                                       dialogue_step['screen'], 
+                                       dialogue_step['animation'])  
             return
 
 

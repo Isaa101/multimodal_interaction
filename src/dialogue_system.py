@@ -465,6 +465,9 @@ class FSMDialogueSystem:
                 print(f"{option}: {question[option]}")
             print ("\nPress Y (Yes), N (No), A, B, C, or D ->      ")
 
+        if self._current_state == 'explanation_needed':
+            print ("\nPress Y (Yes), N (No), A, B, C, or D ->      ")
+
         self.expressiveness_system(screen, dialogue_step['audio'][0], 
                                     dialogue_step['screen'][0], 
                                     dialogue_step['animation'][0] if 'animation' in dialogue_step else None)  

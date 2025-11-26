@@ -98,11 +98,15 @@ class FSMDialogueSystem:
         else:
             # Cap at the length of the prize ladder
             prize = self._prize_levels[min(n, len(self._prize_levels)) - 1]
+            print(prize)
+            print()
 
         if n == len(self._questions):
             message = "Congratulations! You answered all questions correctly!"
+            print(message)
         else:
             message = f"Good try! You answered {n} out of {len(self._questions)} correctly."
+            print(message)
 
         return prize, message
 #---------------------------------------
@@ -388,10 +392,10 @@ class FSMDialogueSystem:
             print("Question:", question['question'])
             for option in ['A', 'B', 'C', 'D']:
                 print(f"{option}: {question[option]}")
-            print ("\nPress Y (Yes), N (No), A, B, C, or D ->      ")
+            print ("\nPress A, B, C, or D ->      ")
 
         if self._current_state == 'explanation_needed':
-            print ("\nPress Y (Yes), N (No), A, B, C, or D ->      ")
+            print ("\nPress Y (Yes), N (No) ->      ")
 
         self.expressiveness_system(screen, dialogue_step['audio'][0], 
                                     dialogue_step['screen'][0], 

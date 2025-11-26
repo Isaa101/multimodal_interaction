@@ -1,4 +1,6 @@
 #! /usr/env/python3
+# Aina Crespi Hromcova
+# Isabel Gregorio Diez
 
 import os
 import sys
@@ -6,19 +8,7 @@ import yaml
 import time
 import pygame
 
-#pygame.mixer.Sound('file.mp3')
-"""
-sentence_id: "introduction"
-text: 
-    -Hello! Welcome to the multimodal interaction lab.
-audio:
-    -congratulate
-screen:
-    -image;green.png&text;congratulations*center
-animation:
-    -happy
-"""
-#type;content&type;content*position
+
 
 
 class FSMDialogueSystem:
@@ -66,7 +56,7 @@ class FSMDialogueSystem:
         self._current_state = 'introduction'
         self._questions_asked = 0
         self._correct_answers = 0
-        self._prize_levels = [100, 200, 500, 1000, 5000]  # prize for 1..5 correct answers
+        self._prize_levels = [100, 200, 500, 1000, 5000]  #prize for 1...5 correct answers
 
 
 #---------------------------------------
@@ -137,22 +127,12 @@ class FSMDialogueSystem:
     # Method for controling the agents expressiveness. It should receive the parameters required for executing the different actions
     # and decide when to call each method
     def expressiveness_system(self, screen, speech=None, screen_content=None, animation=None):
-        """ BORRAR QUIZAS LUEGO
-        Coordinates and synchronizes all expressive channels of the robot.
-        
-        Args:
-            screen: The pygame screen object to draw on
-            speech: Audio file name to play (without .wav extension)
-            screen_content: String containing screen instructions in format "type;content&type;content*position"
-            animation: Animation folder name to play
-        """
-        
         # Lists to track running processes
         running_processes = []
         
-        # 1. PLAY ANIMATION (if provided)
+        # PLAY ANIMATION (if provided)
         if animation:
-            # We'll run animation in a separate thread so it doesn't block speech
+            # We'll run animation in a separate thread to not block speech
             import threading
             anim_thread = threading.Thread(target=self.play_animation, args=(screen, animation))
             anim_thread.daemon = True
@@ -160,30 +140,23 @@ class FSMDialogueSystem:
             running_processes.append(('animation', anim_thread))
             
     
-        # 2. DISPLAY SCREEN CONTENT (if provided)
+        # DISPLAY SCREEN CONTENT (if provided)
         if screen_content:
             self.display_multimedia_content(screen, screen_content)
         
-        # 3. PLAY SPEECH and WAIT for it to finish (this is our main blocking call)
+        # PLAY SPEECH and WAIT for it to finish (this is our main blocking call)
         if speech:
             self.robot_speech(speech)
             # robot_speech should block until audio finishes playing
             if animation:
                 anim_thread.join()
         
-        # 4. If no speech but animation is running, wait for animation to complete
+        # If no speech but animation is running, wait for animation to complete
         #if not speech and animation:
         #    anim_thread.join()
 
     # Method for playing the robot's voice
     def robot_speech(self, speech):
-        '''For reproducing sounds, we can use the pygame.mixer.Sound(path_to_the
-            file) method to create a Sound object and use the play() method that Sound objects
-            have for playing the audio cue. Calling the play() method returns a channel object
-            representing the audio channel through which the audio is being played. We chan
-            check if audio is being played by calling the channel.get_busy() method (it will
-            return False if the sound is not being played, True if it is). We can use this to block
-            the execution of our program until the entire audio clip has been played.'''
         pygame.mixer.init()
         sound = pygame.mixer.Sound('audios/' + speech + '.mp3')
         channel = sound.play()
@@ -193,35 +166,25 @@ class FSMDialogueSystem:
 
     # Method for displaying multimedia content on the robot's "screen"
     def display_multimedia_content(self, screen, screen_content,):
-        '''We have a 1000x272 area at the bottom of the screen to display
-        multimedia content and menus. In the gui.py file, you can see how to display a
-        static image in pygame. You will use the pygame.image.load method to load the
-        image to display, use the blit(image, position) method to place it on the screen, and
-        the pygame.display.flip() method for updating the screen and displaying the new
-        image. For menus, you can use a static image for the background, and then on top
-        of that place texts showing the question and four possible answers. In pygame, you
-        can use the pygame.font.Font object to define a new font to be used for writing
-        texts (you can have multiple if you need different text sizes, for example), and then
-        use the Font.render() method to write text onto the screen.'''
-        
         pygame.font.init()
 
-        # Define las fuentes una vez (no uses 'font' genérico para evitar sombras)
-        font_question = pygame.font.Font(None, 36)  # para pregunta o prompt
-        font_answer   = pygame.font.Font(None, 36)  # para respuestas/YES/NO
+        # Define the font once
+        font_question = pygame.font.Font(None, 36)  # for question or prompt
+        font_answer   = pygame.font.Font(None, 36)  # for answers/YES/NO
 
-        # Limpia el área inferior (1000x272) antes de dibujar
+        # Clear the lower area (1000x272) before drawing new content
         clear_rect = pygame.Rect(self._screen_coord[0], self._screen_coord[1], 1000, 272)
-        screen.fill((0, 0, 0), clear_rect)  # Fondo negro, puedes cambiar el color
-
+        screen.fill((0, 0, 0), clear_rect)  # Black background
 
         elements = screen_content.split('&')
         for element in elements:
             type_content = element.split(';')
             content = type_content[1]
+
             if type_content[0] == 'image':
                 img = pygame.image.load('images/' + content)
                 screen.blit(img, self._screen_coord)
+                
             elif type_content[0] == 'text':
                 text_position = 'center'
                 if '*' in content:
@@ -235,13 +198,13 @@ class FSMDialogueSystem:
         
         
         if self._current_state == 'explanation_needed':
-            # Texto de la pregunta en el recuadro superior
+            # Text of the question in the upper box
             prompt_text = "Do you need to hear the instructions?"
             prompt_surface = font_question.render(prompt_text, True, (255, 255, 255))
             prompt_rect = prompt_surface.get_rect(center=(self._screen_coord[0] + 500, self._screen_coord[1] + 65))
             screen.blit(prompt_surface, prompt_rect)
 
-            # YES y NO en posiciones de A y B
+            # YES and NO in positions A and B
             positions = self._answer_positions()
             yes_surface = font_answer.render("YES", True, (255, 255, 255))
             yes_rect = yes_surface.get_rect(center=positions['A'])
@@ -274,11 +237,6 @@ class FSMDialogueSystem:
         
         elif self._current_state == 'score':
             prize, msg = self._compute_final_prize_and_message()
-
-            # Draw the background image (tablet) if not already drawn by 'screen_content'
-            # (Your loop above already blits the 'image;tablet.png' from script.yaml.
-            # If you want score to always have the tablet, ensure the script provides it,
-            # or force it here by loading tablet.png again.)
 
             # Fonts
             pygame.font.init()
@@ -320,14 +278,6 @@ class FSMDialogueSystem:
 
     # Method for playing an animation
     def play_animation(self, screen, animation):
-        ''' animations will be achieved by displaying a
-            sequence of frames at a certain rate. This can be done by following the same
-            process you used for showing static images on the robot’s screen, and just update
-            the image being displayed every X seconds to the next frame in the animation, until
-            all the frames have been shown. X will define your animation’s fps (e.g. if we want
-            to achieve 20 FPS, we need to update the image every 0.05 seconds). Animations
-            can be find in the animations folder. We will have one sub-folder per animation,
-            with all the frames inside.'''
         animation_path = os.getcwd() + '/animations/' + animation
         if os.path.isdir(animation_path):
             frame_files = sorted(os.listdir(animation_path))
@@ -342,25 +292,6 @@ class FSMDialogueSystem:
 ##################### METHODS FOR MANAGING THE ROBOT'S PERCEPTION #####################
     # Method for capturing user inputs. It should receive the type of input expected, and act accordingly
     def obtain_user_answer(self):
-        ''' The application described in this manual requires the agent to be able to accept inputs
-        coming through two different channels: text-based, and screen-based.
-        ● A text-based input will be used when the virtual agent asks the user if they need to
-        hear the instructions for the game. We need to have a way to capture the answer to
-        that question through the keyboard. For this, we can use python’s built-in
-        input(prompt) method. In this case, prompt is the message that the user will see
-        on the terminal. The method returns a string containing the sequence of keys
-        pressed by the user.
-        6
-        ● Screen-based inputs will be used for allowing the user to answer questions. When
-        the user clicks on one of the answers on the screen, we need to capture the position
-        where the user clicked, and then associate this with one of the possible answers.
-        For the former, we can check if we receive a pygame event with type
-        pygame.MOUSEBUTTONDOWN, and then store the position for the click using the
-        get_pos() method provided by the pygame.mouse library. For the later, because we
-        are always going to have four possible answers on screen, we can divide the screen
-        in four regions (see Figure 8), check if the coordinates for the click fall in one of this
-        four regions. and return the letter associated with each option (A, B, C, or D).
-        '''
         while True:
             for event in pygame.event.get():
 
@@ -368,6 +299,7 @@ class FSMDialogueSystem:
                     pygame.quit()
                     sys.exit()
 
+                # mouse click events
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
 
@@ -379,7 +311,7 @@ class FSMDialogueSystem:
                         elif rects['B'].collidepoint(x, y):
                             print("User answer: NO\n")
                             return 'NO'
-                        # (Ignora clicks en C/D en este estado)
+                        # (Ignores clicks on C/D in this state)
 
                     elif self._current_state == "ask_question":
                         rects = self._answer_rects()
@@ -387,15 +319,8 @@ class FSMDialogueSystem:
                             if rects[opt].collidepoint(x, y):
                                 print(f"User answer: {opt}\n")
                                 return opt
-
-
-            '''   # Bloquea la pantalla
-            #input-based
-            user_input = input("Your answer (Yes/No or A/B/C/D): ").strip().lower()
-            if user_input in ['yes', 'no', 'a', 'b', 'c', 'd']:
-                return user_input.upper()''' 
-            
-            
+                            
+            # keyboard events
             keys = pygame.key.get_pressed()
             
             if self._current_state == "explanation_needed":
@@ -410,7 +335,7 @@ class FSMDialogueSystem:
                 if keys[pygame.K_d]: print("User answer: D\n"); return 'D'
 
 
-            pygame.time.wait(100) # Evita consumir CPU
+            pygame.time.wait(100)   # small delay to avoid busy waiting
 
     
 

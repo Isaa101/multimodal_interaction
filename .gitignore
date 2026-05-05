@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.kate-swp
+*.swp
+*.DS_Store
+*.lnk
+.venv/
+env/
+extra.zip
